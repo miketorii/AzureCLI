@@ -1,0 +1,63 @@
+######################################################
+#
+#  Azure Script
+#
+
+##############################
+### Create Storage Account
+##############################
+
+az storage account create --name <storage account name> --location japaneast --resource-group <resource group name> --sku Standard_LRS
+
+##############################
+### Create function app
+##############################
+
+az functionapp create --resource-group <resource group name> --consumption-plan-location japaneast --runtime python --runtime-version 3.10 --functions-version 4 --name <function application name> --os-type linux --storage-account <storage account name>
+
+##############################
+### Deploy function app
+##############################
+
+func azure functionapp publish <fuction app name> --build remote
+
+######################################################
+#
+#  Install
+#
+(1) Rosetta 2 should be installed in Mac M2.
+
+>softwareupdate --install-rosetta
+
+(2) Install Azure Functions Core Tools
+
+>brew tap azure/functions
+brew install azure-functions-core-tools@4
+# if upgrading on a machine that has 2.x or 3.x installed:
+brew link --overwrite azure-functions-core-tools@4
+
+(3) Confirm func version
+
+>func --version
+
+######################################################
+#
+#  Run virtual env
+#
+> python -m venv <directory name>
+> source <directory name>/bin/activate
+
+######################################################
+#
+#  Create azure function
+#
+>func init --python
+
+>func new --name HttpExample --template "HTTP trigger" --authlevel "anonymous"
+
+####### Tips ########
+Anonymous MUST be Upper case in function_app.py!
+Anonymous -> ANONYMOUS
+
+>func start
+
