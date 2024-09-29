@@ -3,6 +3,8 @@ import datetime
 import json
 import logging
 
+from getdeviceinfo import DeviceInfo
+
 app = func.FunctionApp()
 
 ####################################################################
@@ -28,6 +30,23 @@ def GetDeviceInfo(req: func.HttpRequest) -> func.HttpResponse:
 
     deviceinfo = {"modelname": "iR-ADV C5500", "serialnumber": "80001234", "status": 10001}
     body = json.dumps(deviceinfo)
+
+    return func.HttpResponse(
+        body,
+        mimetype="application/json",
+        status_code=200
+    )
+
+####################################################################
+#
+# GetDeviceInfo2
+#
+@app.route(route="GetDeviceInfo2", auth_level=func.AuthLevel.ANONYMOUS)
+def GetDeviceInfo2(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('--GetDeviceInfo2---')
+
+    dev = DeviceInfo()
+    body = dev.getDeviceInfo()
 
     return func.HttpResponse(
         body,
