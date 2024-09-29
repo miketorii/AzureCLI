@@ -5,23 +5,36 @@ import logging
 
 app = func.FunctionApp()
 
-@app.route(route="GetVersion2", auth_level=func.AuthLevel.ANONYMOUS)
-def GetVersion2(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed a request.')
+####################################################################
+#
+# GetVersion
+#
+@app.route(route="GetVersion", auth_level=func.AuthLevel.ANONYMOUS)
+def GetVersion(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('--GetVersion---')
 
-    name = req.params.get('name')
-    if not name:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            name = req_body.get('name')
+    return func.HttpResponse(
+       "V0,8.0",
+       status_code=200
+    )
 
-    if name:
-        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
-    else:
-        return func.HttpResponse(
-             "This HTTP triggered function in Mac by Mike",
-             status_code=200
-        )
+####################################################################
+#
+# GetDeviceInfo
+#
+@app.route(route="GetDeviceInfo", auth_level=func.AuthLevel.ANONYMOUS)
+def GetDeviceInfo(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('--GetDeviceInfo---')
+
+    deviceinfo = {"modelname": "iR-ADV C5500", "serialnumber": "80001234", "status": 10001}
+    body = json.dumps(deviceinfo)
+
+    return func.HttpResponse(
+        body,
+        mimetype="application/json",
+        status_code=200
+    )
+
+
+
+    
