@@ -1,0 +1,68 @@
+export LOCATION="japaneast"
+export RESOURCE_GROUP="my-resource-group-name"
+export TAG="my-tag-name"
+export ACCOUNT="my-account-name"
+export FAILOVERLOCATION="useast"
+export DATABASE= "my-database-name"
+export CONTAINER="my-container-name"
+export PARTITIONKEY="/my-partition-key"
+export SUBSCRIPTION="my-subscription"
+
+#################################
+# Create Resource Group
+echo "create resource group"
+az group create --name $RESOURCE_GROUP --location $LOCATION --tags $TAG
+
+#################################
+# Create Cosmos account
+echo "create Cosmos account"
+az cosmosdb create --name $ACCOUNT --resource-group $RESOURCE_GROUP --subscription $SUBSCRIPTION
+#--default 
+
+#################################
+# Set configuration
+echo "set configuration of CosmodDB"
+az cosmosdb create --name $ACCOUNT --resource-group $RESOURCE_GROUP --default-consistency-level Eventual --locations regionName=$LOCATION failoverPriority=0 isZoneRedundant=False
+
+#az cosmosdb create --name $ACCOUNT --resource-group $RESOURCE_GROUP --default-consistency-level Eventual --locations regionName=$LOCATION failoverPriority=0 isZoneRedundant=False --locations regionName=$FAILOVERLOCATION failoverPriority=1 isZoneRedundant=False
+
+#az cosmosdb create --name $account --resource-group $resourceGrp --default-consistency-level Eventual --locations regionName="$location" failoverPriority=0 isZoneRedundant=False --locations regionName="$failoverLocation" failoverPriority=1 isZoneRedundant=False
+
+#################################
+# Create Cosmos database
+echo "Creating $database"
+az cosmosdb sql database create --account-name $ACCOUNT --resource-group $RESOURCE_GROUP --name $DATABASE
+
+#################################
+# Define the index policy for the container, include spatial and composite indexes
+echo "define index policy and output json file"
+printf ' 
+{
+    "indexingMode": "consistent", 
+    "includedPaths": [
+        {"path": "/*"}
+    ],
+    "excludedPaths": [
+        { "path": "/headquarters/employees/?"}
+    ],
+    "spatialIndexes": [
+        {"path": "/*", "types": ["Point"]}
+    ],
+    "compositeIndexes":[
+        [
+            { "path":"/name", "order":"ascending" },
+            { "path":"/age", "order":"descending" }
+        ]
+    ]
+}' > "idxpolicy.json"
+
+###########################################
+# Create a SQL API container
+echo "Creating $container with $maxThroughput"
+az cosmosdb sql container create --account-name $ACCOUNT --resource-group $RESOURCE_GROUP --database-name $DATABASE --name $CONTAINER --partition-key-path $PARTITIONKEY --throughput 400 --idx @idxpolicy.json
+
+######################################
+# Clean up temporary index policy file
+echo "remove json file"
+rm -f "idxpolicy.json"
+

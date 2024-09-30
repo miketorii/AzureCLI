@@ -1,0 +1,11 @@
+export RESOURCE_GROUP="my-resource-group-name"
+
+######################################
+# Delete resource group
+echo "Delete resource group"
+az group delete --name $RESOURCE_GROUP
+
+
+
+
+
