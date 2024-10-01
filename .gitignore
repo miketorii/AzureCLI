@@ -57,3 +57,5 @@ __azurite_db*__.json
 /lib64
 pyvenv.cfg
 deploy*.rc
+
+.DS_Store
