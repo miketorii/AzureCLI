@@ -1,5 +1,5 @@
-export RES_GRP="MikeResGrp4"
-export OPENAI_RES_NAME1="OpenAIResName4"
+export RES_GRP="MikeResGrp402"
+export OPENAI_RES_NAME1="OpenAIResName402"
 export DEPLOY_NAME="MyModel"
 
 #export RESION="japaneast"
@@ -7,8 +7,10 @@ export REGION="eastus"
 
 #export MODEL_NAME="text-embedding-ada-002"
 #export MODEL_VERSION="1"
-export MODEL_NAME="gpt-35-turbo"
-export MODEL_VERSION="0125"
+#export MODEL_NAME="gpt-35-turbo"
+#export MODEL_VERSION="0125"
+export MODEL_NAME="gpt-4"
+export MODEL_VERSION="0613"
 
 #export GREEN_COMMIT_ID=100ffff
 
