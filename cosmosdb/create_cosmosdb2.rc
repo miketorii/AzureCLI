@@ -1,0 +1,63 @@
+export LOCATION="japaneast"
+export RESOURCE_GROUP="my-resource-group"
+export TAG="my-tag"
+export ACCOUNT="my-account"
+export FAILOVERLOCATION="useast"
+export DATABASE="my-database"
+export CONTAINER="my-container"
+export PARTITIONKEY="/my-key"
+export SUBSCRIPTION='Visual Studio Enterprise サブスクリプション'
+
+#################################
+# Create Resource Group
+echo "create resource group"
+az group create --name $RESOURCE_GROUP --location $LOCATION --tags $TAG
+
+#################################
+# Create Cosmos account
+echo "create Cosmos account"
+az cosmosdb create --name $ACCOUNT --resource-group $RESOURCE_GROUP --subscription 'Visual Studio Enterprise サブスクリプション'
+
+#################################
+# Set configuration
+echo "set configuration of CosmodDB"
+az cosmosdb create --name $ACCOUNT --resource-group $RESOURCE_GROUP --default-consistency-level Eventual --locations regionName=$LOCATION failoverPriority=0 isZoneRedundant=False
+
+#################################
+# Create Cosmos database
+echo "Creating database"
+az cosmosdb sql database create --account-name $ACCOUNT --name $DATABASE --resource-group $RESOURCE_GROUP
+
+#################################
+# Define the index policy for the container, include spatial and composite indexes
+echo "define index policy and output json file"
+printf ' 
+{
+    "indexingMode": "consistent", 
+    "includedPaths": [
+        {"path": "/*"}
+    ]
+}' > "idxpolicy.json"
+
+###########################################
+# Create a SQL API container
+echo "Creating container with maxThroughput"
+az cosmosdb sql container create --account-name $ACCOUNT --resource-group $RESOURCE_GROUP --database-name $DATABASE --name $CONTAINER --partition-key-path $PARTITIONKEY --throughput 400 --ttl 1000 --idx @idxpolicy.json
+
+######################################
+# Clean up temporary index policy file
+echo "remove json file"
+rm -f "idxpolicy.json"
+
+######################################
+# Add items
+echo "add items"
+az cosmosdb sql create-item --account-name $ACCOUNT --database-name $DATABASE --container-name $CONTAINER --resource-group $RESOURCE_GROUP --body '{"id": "DCAB0001","modelname": "iR-ADV C5500","ipaddr": "192.168.11.100","status": "10000000","location": "building H 9F"}'
+
+az cosmosdb sql query-items --account-name $ACCOUNT --database-name $DATABASE --container-name $CONTAINER --resource-group $RESOURCE_GROUP --query 'SELECT * FROM $CONTAINER'
+
+
+
+
+
+
