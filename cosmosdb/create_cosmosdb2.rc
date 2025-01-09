@@ -7,6 +7,7 @@ export DATABASE="my-database"
 export CONTAINER="my-container"
 export PARTITIONKEY="/my-key"
 export SUBSCRIPTION='Visual Studio Enterprise サブスクリプション'
+export PRINCIPALID="my-principal-id like xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
 #################################
 # Create Resource Group
@@ -50,11 +51,8 @@ echo "remove json file"
 rm -f "idxpolicy.json"
 
 ######################################
-# Add items
-echo "add items"
-az cosmosdb sql create-item --account-name $ACCOUNT --database-name $DATABASE --container-name $CONTAINER --resource-group $RESOURCE_GROUP --body '{"id": "DCAB0001","modelname": "iR-ADV C5500","ipaddr": "192.168.11.100","status": "10000000","location": "building H 9F"}'
-
-az cosmosdb sql query-items --account-name $ACCOUNT --database-name $DATABASE --container-name $CONTAINER --resource-group $RESOURCE_GROUP --query 'SELECT * FROM $CONTAINER'
+# Add role
+az cosmosdb sql role assignment create -a $ACCOUNT -g $RESOURCE_GROUP -s "/" -p $PRINCIPALID -d 00000000-0000-0000-0000-000000000002
 
 
 
